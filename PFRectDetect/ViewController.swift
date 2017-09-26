@@ -9,10 +9,36 @@
 import UIKit
 import SceneKit
 import ARKit
+import Vision
 
-class ViewController: UIViewController, ARSCNViewDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
+    
+    private var rectanglesRequest = [VNRequest]()
+    
+    private var layer: CALayer = CALayer()
+    
+    func setupVision() {
+        let rectRequest = VNDetectRectanglesRequest(completionHandler: self.handleRectangles);
+        rectRequest.minimumSize = 0.1
+        rectRequest.maximumObservations = 20
+        self.rectanglesRequest = [rectRequest]
+    }
+    
+    func handleRectangles(request: VNRequest, error: Error?) {
+        DispatchQueue.main.async {
+            guard let rects = request.results as? [VNRectangleObservation], let r = rects.first else {
+                print("no rect")
+                return
+            }
+            print("\(r.topLeft), \(r.topRight), \(r.bottomLeft), \(r.bottomRight)")
+        }
+    }
+    
+    func makeRectLayer(<#parameters#>) -> <#return type#> {
+        <#function body#>
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,11 +49,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
         
-        // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
         
-        // Set the scene to the view
-        sceneView.scene = scene
+        // Create a new scene
+//        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+//
+//        // Set the scene to the view
+//        sceneView.scene = scene
+    
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -36,8 +64,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
 
+        sceneView.session.delegate = self
         // Run the view's session
         sceneView.session.run(configuration)
+        
+        
+        setupVision()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -51,6 +83,25 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         super.didReceiveMemoryWarning()
         // Release any cached data, images, etc that aren't in use.
     }
+    
+    // MARK: - ARSessionDelegate
+    func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        
+        //frame.camera.ori
+        print("didUpdate frame")
+        
+        // Run the rectangle detector, which upon completion runs the ML classifier.
+        let handler = VNImageRequestHandler(cvPixelBuffer: frame.capturedImage, orientation: CGImagePropertyOrientation.up, options: [:])
+        DispatchQueue.global(qos: .userInteractive).async {
+            do {
+                try handler.perform(self.rectanglesRequest)
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+
 
     // MARK: - ARSCNViewDelegate
     
@@ -77,4 +128,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Reset tracking and/or remove existing anchors if consistent tracking is required
         
     }
+    
+    
 }
