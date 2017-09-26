@@ -17,7 +17,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     private var rectanglesRequest = [VNRequest]()
     
-    private var layer: CALayer = CALayer()
+    private var rectLayer: CAShapeLayer = CAShapeLayer()
     
     func setupVision() {
         let rectRequest = VNDetectRectanglesRequest(completionHandler: self.handleRectangles);
@@ -32,13 +32,34 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 print("no rect")
                 return
             }
+            self.setup(shapeLayer: self.rectLayer, with: r)
             print("\(r.topLeft), \(r.topRight), \(r.bottomLeft), \(r.bottomRight)")
         }
     }
     
-    func makeRectLayer(<#parameters#>) -> <#return type#> {
-        <#function body#>
+    func setup(shapeLayer: CAShapeLayer, with rect: VNRectangleObservation) {
+        let size = self.view.bounds.size
+        
+        shapeLayer.frame = self.view.bounds
+        shapeLayer.fillColor = nil
+        shapeLayer.lineWidth = 10
+        shapeLayer.strokeEnd = 1
+        shapeLayer.strokeColor = UIColor.red.cgColor
+        self.view.layer.addSublayer(shapeLayer)
+        
+        
+        
+        let path = UIBezierPath()
+        path.move(to: rect.bottomLeft.scaled(to: size).flip(with: size.height))
+        path.addLine(to: rect.topLeft.scaled(to: size).flip(with: size.height))
+        path.addLine(to: rect.topRight.scaled(to: size).flip(with: size.height))
+        path.addLine(to: rect.bottomRight.scaled(to: size).flip(with: size.height))
+
+        path.close()
+        shapeLayer.path = path.cgPath
     }
+    
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
