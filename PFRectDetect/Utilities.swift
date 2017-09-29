@@ -18,12 +18,22 @@ extension CGPoint {
         return CGPoint(x: self.x, y: height - self.y)
     }
     
+    func flipNormalized() -> CGPoint {
+        return self.flip(with: 1)
+    }
+    
     func moveX(_ delta: CGFloat) -> CGPoint {
         return CGPoint(x: self.x + delta, y: self.y)
     }
     
     func moveY(_ delta: CGFloat) -> CGPoint {
         return CGPoint(x: self.x, y: self.y + delta)
+    }
+    
+    func toBezierPath() -> UIBezierPath {
+        let result = UIBezierPath()
+        result.addArc(withCenter: self, radius: 5, startAngle: 0, endAngle: CGFloat(2*Double.pi), clockwise: true)
+        return result
     }
 }
 extension CGRect {
@@ -34,6 +44,32 @@ extension CGRect {
             width: self.size.width * size.width,
             height: self.size.height * size.height
         )
+    }
+    
+    func flipNormalized() -> CGRect {
+        var o = self.origin
+        o = o.flipNormalized()
+        o.y = o.y - self.size.height
+        return CGRect(origin: o, size: self.size)
+    }
+    
+    func toBezierPath() -> UIBezierPath {
+        let path = UIBezierPath()
+        let box = self
+        let p = box.origin
+        path.move(to: p) //
+        path.addLine(to: p.moveY(box.height))
+        path.addLine(to: p.moveY(box.height).moveX(box.width))
+        path.addLine(to: p.moveX(box.width))
+        path.close()
+        return path
+    }
+    
+}
+
+extension CGSize {
+    func area() -> CGFloat {
+        return self.width * self.height
     }
 }
 

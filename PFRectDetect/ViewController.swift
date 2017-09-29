@@ -10,6 +10,9 @@ import UIKit
 import SceneKit
 import ARKit
 import Vision
+#if !RX_NO_MODULE
+    import RxSwift
+#endif
 
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
@@ -19,6 +22,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     private var rectLayer: CAShapeLayer = CAShapeLayer()
     private var pointLayer: CAShapeLayer = CAShapeLayer()
+    
+    private var pointsInRectLayer: CAShapeLayer = CAShapeLayer()
+    
+    private var obsFeaturePoints: Variable<[CGPoint]> = Variable<[CGPoint]>([])
+    private var obsTextRect: Variable<CGRect> = Variable<CGRect>(CGRect.zero)
     
     func setupVision() {
         
@@ -34,8 +42,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         }
         
         let result = observations.map({$0 as? VNTextObservation})
+            
+
         
         DispatchQueue.main.async {
+            
+            self.obsTextRect.value = result.flatMap({ o -> [CGRect] in
+                if let rect = o?.boundingBox {
+                    return [rect]
+                } else {
+                    return []
+                }
+            }).reduce(CGRect.zero, { (result, rect) -> CGRect in
+                return result.size.area() >= rect.size.area() ? result : rect
+            }).flipNormalized().scaled(to: self.view.bounds.size)
  
             self.setup(shapeLayer: self.rectLayer, withRects: result)
 //            print("\(r.topLeft), \(r.topRight), \(r.bottomLeft), \(r.bottomRight)")
@@ -46,12 +66,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     func setup(shapeLayer: CAShapeLayer, withRects rects: [VNTextObservation?]) {
         let size = self.view.bounds.size
         
-        shapeLayer.frame = self.view.bounds
-        shapeLayer.fillColor = nil
-        shapeLayer.lineWidth = 10
-        shapeLayer.strokeEnd = 1
-        shapeLayer.strokeColor = UIColor.red.cgColor
-        self.view.layer.addSublayer(shapeLayer)
+
         
         let path = UIBezierPath()
 //        let bigrects = rects.filter(self.bigEnough)
@@ -74,42 +89,35 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     }
     
     func drawOne(rect: VNTextObservation, to size: CGSize) -> UIBezierPath {
-        let path = UIBezierPath()
-        let box = rect.boundingBox
-        let p = box.origin
-        path.move(to: p.scaled(to: size).flip(with: size.height)) //
-        path.addLine(to: p.moveY(box.height).scaled(to: size).flip(with: size.height))
-        path.addLine(to: p.moveY(box.height).moveX(box.width).scaled(to: size).flip(with: size.height))
-        path.addLine(to: p.moveX(box.width).scaled(to: size).flip(with: size.height))
-        path.close()
-        return path
+        
+        return rect.boundingBox.flipNormalized().scaled(to: size).toBezierPath()
+        
     }
     
     func setup(shapeLayer: CAShapeLayer, withPoints points: [vector_float3], on camera:ARCamera) {
 
-        shapeLayer.frame = self.view.bounds
-        shapeLayer.fillColor = nil
-        shapeLayer.lineWidth = 2
-        shapeLayer.strokeEnd = 1
-        shapeLayer.strokeColor = UIColor.red.cgColor
-        self.view.layer.addSublayer(shapeLayer)
+
         
         let path = UIBezierPath()
         
-            for p in points {
-                path.append( drawPoint(camera, p))
-            }
+        let p2d = points.map { p in
+            camera.projectPoint(p, orientation: UIInterfaceOrientation.portrait, viewportSize: self.view.bounds.size)
+        }
+        
+        obsFeaturePoints.value = p2d
+        
+        for p in points {
+            path.append( drawPoint(camera, p))
+        }
         
         self.pointLayer.path = path.cgPath
         shapeLayer.path = path.cgPath
     }
+
     
     func drawPoint(_ ca:ARCamera, _ p: vector_float3) -> UIBezierPath {
-        let result = UIBezierPath()
         let p2d = ca.projectPoint(p, orientation: UIInterfaceOrientation.portrait, viewportSize: self.view.bounds.size)
-        
-        result.addArc(withCenter: p2d, radius: 5, startAngle: 0, endAngle: CGFloat(2*Double.pi), clockwise: true)
-        return result
+        return p2d.toBezierPath()
     }
     
     override func viewDidLoad() {
@@ -122,14 +130,52 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         sceneView.showsStatistics = true
         
         
+        rectLayer.frame = self.view.bounds
+        rectLayer.fillColor = nil
+        rectLayer.lineWidth = 10
+        rectLayer.strokeEnd = 1
+        rectLayer.strokeColor = UIColor.red.cgColor
+        self.view.layer.addSublayer(rectLayer)
+        
+        pointLayer.frame = self.view.bounds
+        pointLayer.fillColor = nil
+        pointLayer.lineWidth = 2
+        pointLayer.strokeEnd = 1
+        pointLayer.strokeColor = UIColor.red.cgColor
+        self.view.layer.addSublayer(pointLayer)
+        
+        pointsInRectLayer.frame = self.view.bounds
+        pointsInRectLayer.fillColor = nil
+        pointsInRectLayer.lineWidth = 1
+        pointsInRectLayer.strokeEnd = 1
+        pointsInRectLayer.strokeColor = UIColor.green.cgColor
+        self.view.layer.addSublayer(pointsInRectLayer)
+        
+        
         // Create a new scene
 //        let scene = SCNScene(named: "art.scnassets/ship.scn")!
 //
 //        // Set the scene to the view
 //        sceneView.scene = scene
         
-        
+        let obs = Observable.combineLatest(self.obsFeaturePoints.asObservable(), self.obsTextRect.asObservable()){ ($0, $1) }
+        let dis = obs.subscribe(onNext: { (points, rect) in
+            let inpoints = points.filter({rect.contains($0)})
+            self.drawPoints(inpoints, onRect: rect)
+//            print("rect: \(rect) - inpoint1: \(inpoints)")
+        })
     
+    }
+    
+    func drawPoints(_ points: [CGPoint], onRect rect: CGRect) {
+        
+        let result = UIBezierPath()
+        points.forEach { (p) in
+            result.append(p.toBezierPath())
+        }
+        result.append(rect.toBezierPath())
+        
+        self.pointsInRectLayer.path = result.cgPath
     }
     
     override func viewWillAppear(_ animated: Bool) {
