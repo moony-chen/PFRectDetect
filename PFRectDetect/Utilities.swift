@@ -17,6 +17,14 @@ extension CGPoint {
     func flip(with height: CGFloat) -> CGPoint {
         return CGPoint(x: self.x, y: height - self.y)
     }
+    
+    func moveX(_ delta: CGFloat) -> CGPoint {
+        return CGPoint(x: self.x + delta, y: self.y)
+    }
+    
+    func moveY(_ delta: CGFloat) -> CGPoint {
+        return CGPoint(x: self.x, y: self.y + delta)
+    }
 }
 extension CGRect {
     func scaled(to size: CGSize) -> CGRect {

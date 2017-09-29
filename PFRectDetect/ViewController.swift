@@ -21,25 +21,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     private var pointLayer: CAShapeLayer = CAShapeLayer()
     
     func setupVision() {
-        let rectRequest = VNDetectRectanglesRequest(completionHandler: self.handleRectangles);
-        rectRequest.minimumSize = 0.1
-        rectRequest.maximumObservations = 20
-        self.rectanglesRequest = [rectRequest]
+        
+        let textRequest = VNDetectTextRectanglesRequest(completionHandler: self.handleRectangles);
+        textRequest.reportCharacterBoxes = true
+        self.rectanglesRequest = [textRequest]
     }
     
     func handleRectangles(request: VNRequest, error: Error?) {
+        guard let observations = request.results else {
+            print("no result")
+            return
+        }
+        
+        let result = observations.map({$0 as? VNTextObservation})
+        
         DispatchQueue.main.async {
-            guard let rects = request.results as? [VNRectangleObservation] else {
-                print("no rect")
-                return
-            }
-            self.setup(shapeLayer: self.rectLayer, withRects: rects)
+ 
+            self.setup(shapeLayer: self.rectLayer, withRects: result)
 //            print("\(r.topLeft), \(r.topRight), \(r.bottomLeft), \(r.bottomRight)")
         }
     }
 
     
-    func setup(shapeLayer: CAShapeLayer, withRects rects: [VNRectangleObservation]) {
+    func setup(shapeLayer: CAShapeLayer, withRects rects: [VNTextObservation?]) {
         let size = self.view.bounds.size
         
         shapeLayer.frame = self.view.bounds
@@ -54,7 +58,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         rects
             //.filter(self.bigEnough)
             .forEach { (ro) in
-            path.append(drawOne(rect: ro, to: size))
+                if let to = ro {
+                    path.append(drawOne(rect: to, to: size))
+                }
+            
         }
 
         
@@ -66,19 +73,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         return size.width * size.height > 1/3
     }
     
-    func drawOne(rect: VNRectangleObservation, to size: CGSize) -> UIBezierPath {
+    func drawOne(rect: VNTextObservation, to size: CGSize) -> UIBezierPath {
         let path = UIBezierPath()
-        path.move(to: rect.bottomLeft.scaled(to: size).flip(with: size.height)) //
-        path.addLine(to: rect.topLeft.scaled(to: size).flip(with: size.height))
-        path.addLine(to: rect.topRight.scaled(to: size).flip(with: size.height))
-        path.addLine(to: rect.bottomRight.scaled(to: size).flip(with: size.height))
+        let box = rect.boundingBox
+        let p = box.origin
+        path.move(to: p.scaled(to: size).flip(with: size.height)) //
+        path.addLine(to: p.moveY(box.height).scaled(to: size).flip(with: size.height))
+        path.addLine(to: p.moveY(box.height).moveX(box.width).scaled(to: size).flip(with: size.height))
+        path.addLine(to: p.moveX(box.width).scaled(to: size).flip(with: size.height))
         path.close()
         return path
     }
     
     func setup(shapeLayer: CAShapeLayer, withPoints points: [vector_float3], on camera:ARCamera) {
-        let size = self.view.bounds.size
-        
+
         shapeLayer.frame = self.view.bounds
         shapeLayer.fillColor = nil
         shapeLayer.lineWidth = 2
@@ -131,7 +139,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         let configuration = ARWorldTrackingConfiguration()
 
         sceneView.session.delegate = self
-        sceneView.debugOptions = [//ARSCNDebugOptions.showWorldOrigin,
+        sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin,
                                   ARSCNDebugOptions.showFeaturePoints
         ]
 //        sceneView.
@@ -180,6 +188,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         
         
         // Run the rectangle detector, which upon completion runs the ML classifier.
+        
         let handler = VNImageRequestHandler(cvPixelBuffer: frame.capturedImage, orientation: CGImagePropertyOrientation.right, options: requestOptions)
         DispatchQueue.global(qos: .userInteractive).async {
             do {
