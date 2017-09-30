@@ -25,8 +25,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     private var pointsInRectLayer: CAShapeLayer = CAShapeLayer()
     
-    private var obsFeaturePoints: Variable<[CGPoint]> = Variable<[CGPoint]>([])
-    private var obsTextRect: Variable<CGRect> = Variable<CGRect>(CGRect.zero)
+    private var obsFeaturePoints = Variable<[vector_float3]>([])
+    private var obsARFrame = PublishSubject<ARFrame>()
+    private var obsTap = PublishSubject<UITapGestureRecognizer>()
+    private var obsTextRect = Variable<CGRect>(CGRect.zero)
     
     func setupVision() {
         
@@ -104,7 +106,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             camera.projectPoint(p, orientation: UIInterfaceOrientation.portrait, viewportSize: self.view.bounds.size)
         }
         
-        obsFeaturePoints.value = p2d
+        
+        
+        obsFeaturePoints.value = points
         
         for p in points {
             path.append( drawPoint(camera, p))
@@ -158,13 +162,77 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 //        // Set the scene to the view
 //        sceneView.scene = scene
         
-        let obs = Observable.combineLatest(self.obsFeaturePoints.asObservable(), self.obsTextRect.asObservable()){ ($0, $1) }
-        let dis = obs.subscribe(onNext: { (points, rect) in
-            let inpoints = points.filter({rect.contains($0)})
-            self.drawPoints(inpoints, onRect: rect)
-//            print("rect: \(rect) - inpoint1: \(inpoints)")
+        let bounds = self.view.bounds
+        let size = bounds.size
+        let center = self.view.center
+        
+        let obs =
+            Observable.combineLatest(
+                Observable.combineLatest(self.obsARFrame, self.obsTextRect.asObservable()){ ($0, $1) }
+            , obsTap) {(ab, c) in (ab.0, ab.1, c)}
+        .take(1)
+//            .filter { (_, rect) -> Bool in
+//                return bounds.contains(rect)
+//            }.filter { (_, rect) -> Bool in
+//                rect.contains(center)
+//        }
+        
+
+        
+        //        planeNode.rotation = SCNVector4(1, 0, 0, Float.pi/2)
+
+        let dis = obs.subscribe(onNext: { (frame, rect, tap) in
+            if let points3d = frame.rawFeaturePoints?.points {
+                let points2d = points3d.map({ p in
+                    return (p, frame.camera.projectPoint(p, orientation: UIInterfaceOrientation.portrait, viewportSize: size))
+                })
+                
+                let inpoints = points2d.filter({rect.contains($1)})
+                
+                self.drawPoints(inpoints.map({$1}), onRect: rect)
+                
+                let sv = self.sceneView!
+                
+                let imagePlane = SCNPlane(width: sv.bounds.width/6000, height: sv.bounds.height/6000)
+                imagePlane.firstMaterial?.diffuse.contents = UIImage(named: "poster")
+                imagePlane.firstMaterial?.isDoubleSided = true
+                imagePlane.firstMaterial?.lightingModel = .constant
+                
+                let planeNode = SCNNode(geometry: imagePlane)
+                sv.scene.rootNode.addChildNode(planeNode)
+                
+                
+                if  inpoints.count > 1 {
+                    let p1 = inpoints[0].0, p2 = inpoints[1].0
+                    planeNode.position = SCNVector3(p1)
+                    
+                    let theta = atan( (p2.z - p1.z)/(p2.x - p1.x))
+                    
+                    planeNode.rotation = SCNVector4(0, 1, 0, theta)
+                }
+                
+                
+                
+                
+//                print("rect: \(rect) - inpoint1: \(inpoints.count)")
+            }
+            
+            
         })
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ViewController.handleTap(gestureRecognizer:)))
+        view.addGestureRecognizer(tapGesture)
     
+    }
+    
+    @objc
+    func handleTap(gestureRecognizer: UITapGestureRecognizer) {
+        
+        obsTap.onNext(gestureRecognizer)
+        
+
+        
+        
     }
     
     func drawPoints(_ points: [CGPoint], onRect rect: CGRect) {
@@ -226,6 +294,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         requestOptions = [.cameraIntrinsics: cameraIntrisic]
 //        print(cameraIntrisic)
         
+        obsARFrame.onNext(frame)
 
         if let points = frame.rawFeaturePoints?.points {
             self.setup(shapeLayer: self.pointLayer, withPoints: points, on: ca)
