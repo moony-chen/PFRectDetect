@@ -201,17 +201,42 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 let planeNode = SCNNode(geometry: imagePlane)
                 sv.scene.rootNode.addChildNode(planeNode)
                 
+                inpoints.map({ (p3d, _) in
+                    let ball = SCNSphere(radius: 0.001)
+                    ball.firstMaterial?.diffuse.contents = UIColor(red: 0, green: 1, blue: 0, alpha: 0.9)
+                    ball.firstMaterial?.lightingModel = .constant
+                    let ballNode = SCNNode(geometry: ball)
+                    ballNode.position = SCNVector3(p3d)
+                    return ballNode
+                }).forEach({ (node) in
+                    sv.scene.rootNode.addChildNode(node)
+                })
                 
-                if  inpoints.count > 1 {
-                    let p1 = inpoints[0].0, p2 = inpoints[1].0
-                    planeNode.position = SCNVector3(p1)
+//                planeNode.position = SCNVector3(x: 0.0, y:0.1, z:0)
+                
+                
+                
+                
+//                if  inpoints.count > 1 {
+//                    let p1 = inpoints[0].0, p2 = inpoints[1].0
+//                    planeNode.position = SCNVector3(p1)
+//
+//                    let theta = atan( (p2.z - p1.z)/(p2.x - p1.x))
+//
+//                    planeNode.rotation = SCNVector4(0, 1, 0, theta)
+//                }
+                if inpoints.count > 1 {
+                    let p0 = inpoints.first?.0.y
+                    let xs = inpoints.map({$0.0}).map({Double($0.x)})
+                    let zs = inpoints.map({$0.0}).map({Double($0.z)})
+                    let lineReg = linearRegression(xs, zs)
+                    let avgx = average(xs)
+                    planeNode.position = SCNVector3(x:Float(avgx), y: p0!-0.1, z: Float(lineReg(avgx)))
                     
-                    let theta = atan( (p2.z - p1.z)/(p2.x - p1.x))
+                    let theta = atan( lineReg(1) - lineReg(0))
+                    planeNode.rotation = SCNVector4(0, 1, 0, -theta)
                     
-                    planeNode.rotation = SCNVector4(0, 1, 0, theta)
                 }
-                
-                
                 
                 
 //                print("rect: \(rect) - inpoint1: \(inpoints.count)")
@@ -224,6 +249,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         view.addGestureRecognizer(tapGesture)
     
     }
+    
+
     
     @objc
     func handleTap(gestureRecognizer: UITapGestureRecognizer) {
