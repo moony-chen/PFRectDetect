@@ -7,6 +7,7 @@ target 'PFRectDetect' do
 
   # Pods for PFRectDetect
   pod 'RxSwift', :git => 'https://github.com/ReactiveX/RxSwift.git', :branch => 'rxswift4.0-swift4.0'
+  pod 'TesseractOCRiOS', '~> 4.0'
 
   target 'PFRectDetectTests' do
     inherit! :search_paths

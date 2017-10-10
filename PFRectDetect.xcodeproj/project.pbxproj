@@ -14,6 +14,9 @@
 		1ADB450C1F7A1BAC00FB2BCF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ADB450B1F7A1BAC00FB2BCF /* Assets.xcassets */; };
 		1ADB450F1F7A1BAC00FB2BCF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1ADB450D1F7A1BAC00FB2BCF /* LaunchScreen.storyboard */; };
 		1ADB451A1F7A1BAC00FB2BCF /* PFRectDetectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADB45191F7A1BAC00FB2BCF /* PFRectDetectTests.swift */; };
+		1ADB45E81F8C602900FB2BCF /* OCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADB45E71F8C602900FB2BCF /* OCRService.swift */; };
+		1ADB45EF1F8C80CD00FB2BCF /* TestImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ADB45EE1F8C80CD00FB2BCF /* TestImages.xcassets */; };
+		1ADB45F51F8C8A7500FB2BCF /* tessdata in Resources */ = {isa = PBXBuildFile; fileRef = 1ADB45F41F8C8A7400FB2BCF /* tessdata */; };
 		7595E20E1F7AADBD003D7F0B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7595E20D1F7AADBD003D7F0B /* Utilities.swift */; };
 		BFF13B2BAEE9EC6034F3E727 /* Pods_PFRectDetectTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD5BAFAFD1256146629951C8 /* Pods_PFRectDetectTests.framework */; };
 		E786B9441B2DE63C6C43941E /* Pods_PFRectDetect.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4416AD04B9D8C0AD46B9C84 /* Pods_PFRectDetect.framework */; };
@@ -42,6 +45,10 @@
 		1ADB45151F7A1BAC00FB2BCF /* PFRectDetectTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PFRectDetectTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ADB45191F7A1BAC00FB2BCF /* PFRectDetectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PFRectDetectTests.swift; sourceTree = "<group>"; };
 		1ADB451B1F7A1BAC00FB2BCF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1ADB45E71F8C602900FB2BCF /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
+		1ADB45E91F8C617100FB2BCF /* Pods-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pods-Bridging-Header.h"; sourceTree = "<group>"; };
+		1ADB45EE1F8C80CD00FB2BCF /* TestImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TestImages.xcassets; sourceTree = "<group>"; };
+		1ADB45F41F8C8A7400FB2BCF /* tessdata */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tessdata; sourceTree = "<group>"; };
 		23FD963C63369D89787CC928 /* Pods-PFRectDetect.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PFRectDetect.release.xcconfig"; path = "Pods/Target Support Files/Pods-PFRectDetect/Pods-PFRectDetect.release.xcconfig"; sourceTree = "<group>"; };
 		42C8185FB9B12A1CDC902AA3 /* Pods-PFRectDetectTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PFRectDetectTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PFRectDetectTests/Pods-PFRectDetectTests.release.xcconfig"; sourceTree = "<group>"; };
 		7595E20D1F7AADBD003D7F0B /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -113,6 +120,7 @@
 		1ADB45011F7A1BAC00FB2BCF /* PFRectDetect */ = {
 			isa = PBXGroup;
 			children = (
+				1ADB45F41F8C8A7400FB2BCF /* tessdata */,
 				1ADB45021F7A1BAC00FB2BCF /* AppDelegate.swift */,
 				1ADB45041F7A1BAC00FB2BCF /* art.scnassets */,
 				1ADB45061F7A1BAC00FB2BCF /* ViewController.swift */,
@@ -121,6 +129,8 @@
 				1ADB450B1F7A1BAC00FB2BCF /* Assets.xcassets */,
 				1ADB450D1F7A1BAC00FB2BCF /* LaunchScreen.storyboard */,
 				1ADB45101F7A1BAC00FB2BCF /* Info.plist */,
+				1ADB45E71F8C602900FB2BCF /* OCRService.swift */,
+				1ADB45E91F8C617100FB2BCF /* Pods-Bridging-Header.h */,
 			);
 			path = PFRectDetect;
 			sourceTree = "<group>";
@@ -130,6 +140,7 @@
 			children = (
 				1ADB45191F7A1BAC00FB2BCF /* PFRectDetectTests.swift */,
 				1ADB451B1F7A1BAC00FB2BCF /* Info.plist */,
+				1ADB45EE1F8C80CD00FB2BCF /* TestImages.xcassets */,
 			);
 			path = PFRectDetectTests;
 			sourceTree = "<group>";
@@ -225,6 +236,7 @@
 			files = (
 				1ADB45051F7A1BAC00FB2BCF /* art.scnassets in Resources */,
 				1ADB450F1F7A1BAC00FB2BCF /* LaunchScreen.storyboard in Resources */,
+				1ADB45F51F8C8A7500FB2BCF /* tessdata in Resources */,
 				1ADB450C1F7A1BAC00FB2BCF /* Assets.xcassets in Resources */,
 				1ADB450A1F7A1BAC00FB2BCF /* Main.storyboard in Resources */,
 			);
@@ -234,6 +246,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1ADB45EF1F8C80CD00FB2BCF /* TestImages.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,10 +342,12 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-PFRectDetect/Pods-PFRectDetect-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/TesseractOCRiOS/TesseractOCR.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TesseractOCR.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -346,6 +361,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1ADB45E81F8C602900FB2BCF /* OCRService.swift in Sources */,
 				7595E20E1F7AADBD003D7F0B /* Utilities.swift in Sources */,
 				1ADB45071F7A1BAC00FB2BCF /* ViewController.swift in Sources */,
 				1ADB45031F7A1BAC00FB2BCF /* AppDelegate.swift in Sources */,

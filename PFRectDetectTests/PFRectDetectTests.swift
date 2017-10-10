@@ -11,14 +11,29 @@ import XCTest
 
 class PFRectDetectTests: XCTestCase {
     
+    var ocrService: OCRService?
+    
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        ocrService = OCRService()
     }
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+    }
+    
+    func testOCR() {
+        let image = UIImage(named:"Lenore", in: Bundle(for: PFRectDetectTests.self), compatibleWith: nil)
+        let text = ocrService?.ocr(image: scaleImage(image: image!, maxDimension: 640)!)
+        XCTAssert((text?.starts(with: "Lenore"))!)
+    }
+    
+    func testStickyNote() {
+        let image = UIImage(named:"3", in: Bundle(for: PFRectDetectTests.self), compatibleWith: nil)
+        let text = ocrService?.ocr(image: image!)
+        XCTAssertEqual("3", text)
     }
     
     func testExample() {
