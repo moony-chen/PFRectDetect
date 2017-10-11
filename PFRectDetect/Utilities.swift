@@ -46,6 +46,17 @@ extension CGRect {
         )
     }
     
+    func bigger() -> CGRect {
+        let delW = self.size.width
+        let delH = self.size.height 
+        return CGRect(
+            x: self.origin.x - delW/2,
+            y: self.origin.y - delH/2,
+            width: size.width + delW,
+            height: size.height + delH
+        )
+    }
+    
     func flipNormalized() -> CGRect {
         var o = self.origin
         o = o.flipNormalized()

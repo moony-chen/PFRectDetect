@@ -25,15 +25,15 @@ class PFRectDetectTests: XCTestCase {
     }
     
     func testOCR() {
-        let image = UIImage(named:"Lenore", in: Bundle(for: PFRectDetectTests.self), compatibleWith: nil)
+        let image = UIImage(named:"small", in: Bundle(for: PFRectDetectTests.self), compatibleWith: nil)
         let text = ocrService?.ocr(image: scaleImage(image: image!, maxDimension: 640)!)
-        XCTAssert((text?.starts(with: "Lenore"))!)
+        XCTAssert((text?.starts(with: "Small"))!)
     }
     
     func testStickyNote() {
-        let image = UIImage(named:"3", in: Bundle(for: PFRectDetectTests.self), compatibleWith: nil)
-        let text = ocrService?.ocr(image: image!)
-        XCTAssertEqual("3", text)
+        let image = UIImage(named:"Screen Shot 2017-10-11 at 9.05.59 AM", in: Bundle(for: PFRectDetectTests.self), compatibleWith: nil)
+        let text = ocrService?.ocr(image: scaleImage(image: image!, maxDimension: 300)!)
+        XCTAssertEqual("Small 3", text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
     }
     
     func testExample() {
@@ -45,6 +45,8 @@ class PFRectDetectTests: XCTestCase {
         // This is an example of a performance test case.
         self.measure {
             // Put the code you want to measure the time of here.
+            let image = UIImage(named:"Screen Shot 2017-10-11 at 9.05.59 AM", in: Bundle(for: PFRectDetectTests.self), compatibleWith: nil)
+            let text = ocrService?.ocr(image: image!)
         }
     }
     

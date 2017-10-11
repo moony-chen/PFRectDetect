@@ -50,6 +50,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         DispatchQueue.main.async {
             
             self.obsTextRect.value = result.flatMap({ o -> [CGRect] in
+//                o?.characterBoxes
                 if let rect = o?.boundingBox {
                     return [rect]
                 } else {
@@ -57,7 +58,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 }
             }).reduce(CGRect.zero, { (result, rect) -> CGRect in
                 return result.size.area() >= rect.size.area() ? result : rect
-            }).flipNormalized().scaled(to: self.view.bounds.size)
+            }).flipNormalized()//.scaled(to: self.view.bounds.size)
  
             self.setup(shapeLayer: self.rectLayer, withRects: result)
 //            print("\(r.topLeft), \(r.topRight), \(r.bottomLeft), \(r.bottomRight)")
@@ -168,7 +169,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         
         let obs =
             Observable.combineLatest(
-                Observable.combineLatest(self.obsARFrame, self.obsTextRect.asObservable()){ ($0, $1) }
+                Observable.zip(self.obsARFrame, self.obsTextRect.asObservable()){ ($0, $1) }
             , obsTap) {(ab, c) in (ab.0, ab.1, c)}
         .take(1)
 //            .filter { (_, rect) -> Bool in
@@ -181,7 +182,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         
         //        planeNode.rotation = SCNVector4(1, 0, 0, Float.pi/2)
 
-        let dis = obs.subscribe(onNext: { (frame, rect, tap) in
+        let dis = obs.subscribe(onNext: { (frame, rectN, tap) in
+            let rect = rectN.scaled(to: size)
+            
+            
+            let ciImage = CIImage(cvPixelBuffer:  frame.capturedImage)
+//            let uiImage = UIImage(ciImage: ciImage, scale: 1, orientation: UIImageOrientation.right)
+            
+//            let snapshot = self.sceneView.snapshot()
+//            let ciImage = CIImage(image: snapshot)!
+            let snapRect = rectN.flipNormalized().scaled(to: ciImage.extent.size)
+            let imageForOcr = self.prepareImageForOCR(image: ciImage, rect: snapRect, orientation: UIImageOrientation.right)
+//
+            let roomName = OCRService.sharedInstance.ocr(image: imageForOcr)
+            print("roomName=\(String(describing: roomName))")
+//
+            
             if let points3d = frame.rawFeaturePoints?.points {
                 let points2d = points3d.map({ p in
                     return (p, frame.camera.projectPoint(p, orientation: UIInterfaceOrientation.portrait, viewportSize: size))
@@ -257,9 +273,53 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         
         obsTap.onNext(gestureRecognizer)
         
+    }
+    
+    func prepareImage(image: UIImage) -> UIImage {
+        var orientation: UIImageOrientation = .up
+        orientation = image.imageOrientation
+        let ciImage = CIImage(image: image)
+        let updatedImage = ciImage?
+            .applyingFilter("CIExposureAdjust", parameters: ["inputEV": 2])
+            .applyingFilter("CIColorControls", parameters: ["inputContrast": 2])
+            .applyingFilter("CIHighlightShadowAdjust", parameters: ["inputShadowAmount": 0])
+        
+        return UIImage(ciImage: updatedImage!, scale: 1, orientation: orientation)
+    }
 
+    func prepareImageForOCR(image: CIImage, rect: CGRect, orientation: UIImageOrientation) -> UIImage {
+//        guard let ciImage = CIImage(image: image)
+//            else { fatalError("can't create CIImage from UIImage") }
+//        print("uiImage.imageOrientation=\(image.imageOrientation.rawValue)")
+        let orientation = CGImagePropertyOrientation(orientation)
+        print("orientation=\(orientation.rawValue)")
+        let rect2 = rect.bigger()
+        let inputImage = image.oriented(forExifOrientation: Int32(orientation.rawValue))
+
+        // Rectify the detected image and reduce it to inverted grayscale for applying model.
+//        let topLeft = detectedRectangle.topLeft.scaled(to: imageSize)
+//        let topRight = detectedRectangle.topRight.scaled(to: imageSize)
+//        let bottomLeft = detectedRectangle.bottomLeft.scaled(to: imageSize)
+//        let bottomRight = detectedRectangle.bottomRight.scaled(to: imageSize)
+        let correctedImage = inputImage
+            .cropped(to: rect2)
+//            .applyingFilter("CIPerspectiveCorrection", parameters: [
+//                "inputTopLeft": CIVector(cgPoint: topLeft),
+//                "inputTopRight": CIVector(cgPoint: topRight),
+//                "inputBottomLeft": CIVector(cgPoint: bottomLeft),
+//                "inputBottomRight": CIVector(cgPoint: bottomRight)
+//                ])
+            .applyingFilter("CIExposureAdjust", parameters: ["inputEV": 2])
+            .applyingFilter("CIColorControls", parameters: ["inputContrast": 2])
+            .applyingFilter("CIHighlightShadowAdjust", parameters: ["inputShadowAmount": 0])
+//            .applyingFilter("CIColorInvert", parameters: [:])
         
-        
+        let context = CIContext(options:nil)
+        let cgimg = context.createCGImage(correctedImage, from: correctedImage.extent)
+
+        return UIImage(cgImage: cgimg!)
+
+
     }
     
     func drawPoints(_ points: [CGPoint], onRect rect: CGRect) {
@@ -280,8 +340,8 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         let configuration = ARWorldTrackingConfiguration()
 
         sceneView.session.delegate = self
-        sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin,
-                                  ARSCNDebugOptions.showFeaturePoints
+        sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin
+//            ,ARSCNDebugOptions.showFeaturePoints
         ]
 //        sceneView.
         // Run the view's session
