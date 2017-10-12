@@ -1,27 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" systemVersion="17A278a" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BV1-FR-VrT">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="tXr-a1-R10">
             <objects>
-                <viewController id="BV1-FR-VrT" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
-                    <arscnView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="BrB-h1-WRS">
+                <viewController id="BV1-FR-VrT" customClass="ViewController" customModule="PFRectDetect" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="LdU-30-tEV">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    </arscnView>
+                        <subviews>
+                            <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nir-jZ-TlC">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                            </arscnView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XND-5v-ZNv">
+                                <rect key="frame" x="166.5" y="626" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="nir-jZ-TlC" firstAttribute="top" secondItem="MOy-Vd-m7e" secondAttribute="top" id="0ko-cK-piD"/>
+                            <constraint firstItem="XND-5v-ZNv" firstAttribute="centerX" secondItem="LdU-30-tEV" secondAttribute="centerX" id="ITp-Tr-qPE"/>
+                            <constraint firstItem="nir-jZ-TlC" firstAttribute="leading" secondItem="MOy-Vd-m7e" secondAttribute="leading" id="cRS-hQ-G2d"/>
+                            <constraint firstItem="MOy-Vd-m7e" firstAttribute="bottom" secondItem="XND-5v-ZNv" secondAttribute="bottom" constant="20" id="dmk-52-3RV"/>
+                            <constraint firstItem="MOy-Vd-m7e" firstAttribute="trailing" secondItem="nir-jZ-TlC" secondAttribute="trailing" id="iAu-AK-gCe"/>
+                            <constraint firstItem="MOy-Vd-m7e" firstAttribute="bottom" secondItem="nir-jZ-TlC" secondAttribute="bottom" id="mQZ-dP-E2b"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="MOy-Vd-m7e"/>
+                    </view>
                     <connections>
-                        <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
+                        <outlet property="lbRoomName" destination="XND-5v-ZNv" id="0Pc-It-87K"/>
+                        <outlet property="sceneView" destination="nir-jZ-TlC" id="ayF-nE-gvG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="32.799999999999997" y="53.523238380809602"/>
         </scene>
     </scenes>
 </document>

@@ -82,6 +82,10 @@ extension CGSize {
     func area() -> CGFloat {
         return self.width * self.height
     }
+    
+    func transpose() -> CGSize {
+        return CGSize(width: self.height, height: self.width)
+    }
 }
 
 extension CGImagePropertyOrientation {

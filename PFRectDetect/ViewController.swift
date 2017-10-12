@@ -18,6 +18,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     
+    @IBOutlet weak var lbRoomName: UILabel!
     private var rectanglesRequest = [VNRequest]()
     
     private var rectLayer: CAShapeLayer = CAShapeLayer()
@@ -191,12 +192,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             
 //            let snapshot = self.sceneView.snapshot()
 //            let ciImage = CIImage(image: snapshot)!
-            let snapRect = rectN.flipNormalized().scaled(to: ciImage.extent.size)
+            
+            let frameSize = ciImage.extent.size
+            
+            let snapRect = rectN.flipNormalized().scaled(to: frameSize.transpose())
             let imageForOcr = self.prepareImageForOCR(image: ciImage, rect: snapRect, orientation: UIImageOrientation.right)
 //
-            let roomName = OCRService.sharedInstance.ocr(image: imageForOcr)
+            let roomName = OCRService.sharedInstance.ocr(image: imageForOcr)?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             print("roomName=\(String(describing: roomName))")
+            
+            self.lbRoomName.text = roomName
 //
+
             
             if let points3d = frame.rawFeaturePoints?.points {
                 let points2d = points3d.map({ p in
@@ -209,7 +216,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 
                 let sv = self.sceneView!
                 
-                let imagePlane = SCNPlane(width: sv.bounds.width/6000, height: sv.bounds.height/6000)
+                let imagePlane = SCNPlane(width: 0.4, height: 0.5)
                 imagePlane.firstMaterial?.diffuse.contents = UIImage(named: "poster")
                 imagePlane.firstMaterial?.isDoubleSided = true
                 imagePlane.firstMaterial?.lightingModel = .constant
@@ -218,7 +225,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 sv.scene.rootNode.addChildNode(planeNode)
                 
                 inpoints.map({ (p3d, _) in
-                    let ball = SCNSphere(radius: 0.001)
+                    let ball = SCNSphere(radius: 0.002)
                     ball.firstMaterial?.diffuse.contents = UIColor(red: 0, green: 1, blue: 0, alpha: 0.9)
                     ball.firstMaterial?.lightingModel = .constant
                     let ballNode = SCNNode(geometry: ball)
@@ -247,7 +254,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                     let zs = inpoints.map({$0.0}).map({Double($0.z)})
                     let lineReg = linearRegression(xs, zs)
                     let avgx = average(xs)
-                    planeNode.position = SCNVector3(x:Float(avgx), y: p0!-0.1, z: Float(lineReg(avgx)))
+                    planeNode.position = SCNVector3(x:Float(avgx), y: p0!-0.35, z: Float(lineReg(avgx)))
                     
                     let theta = atan( lineReg(1) - lineReg(0))
                     planeNode.rotation = SCNVector4(0, 1, 0, -theta)
@@ -293,7 +300,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 //        print("uiImage.imageOrientation=\(image.imageOrientation.rawValue)")
         let orientation = CGImagePropertyOrientation(orientation)
         print("orientation=\(orientation.rawValue)")
-        let rect2 = rect.bigger()
+//        let rect2 = rect.bigger()
         let inputImage = image.oriented(forExifOrientation: Int32(orientation.rawValue))
 
         // Rectify the detected image and reduce it to inverted grayscale for applying model.
@@ -302,7 +309,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 //        let bottomLeft = detectedRectangle.bottomLeft.scaled(to: imageSize)
 //        let bottomRight = detectedRectangle.bottomRight.scaled(to: imageSize)
         let correctedImage = inputImage
-            .cropped(to: rect2)
+            .cropped(to: rect)
 //            .applyingFilter("CIPerspectiveCorrection", parameters: [
 //                "inputTopLeft": CIVector(cgPoint: topLeft),
 //                "inputTopRight": CIVector(cgPoint: topRight),
@@ -310,7 +317,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 //                "inputBottomRight": CIVector(cgPoint: bottomRight)
 //                ])
             .applyingFilter("CIExposureAdjust", parameters: ["inputEV": 2])
-            .applyingFilter("CIColorControls", parameters: ["inputContrast": 2])
+            .applyingFilter("CIColorControls", parameters: ["inputContrast": 4])
             .applyingFilter("CIHighlightShadowAdjust", parameters: ["inputShadowAmount": 0])
 //            .applyingFilter("CIColorInvert", parameters: [:])
         
