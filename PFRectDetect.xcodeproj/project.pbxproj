@@ -17,6 +17,7 @@
 		1ADB45E81F8C602900FB2BCF /* OCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADB45E71F8C602900FB2BCF /* OCRService.swift */; };
 		1ADB45EF1F8C80CD00FB2BCF /* TestImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ADB45EE1F8C80CD00FB2BCF /* TestImages.xcassets */; };
 		1ADB45F51F8C8A7500FB2BCF /* tessdata in Resources */ = {isa = PBXBuildFile; fileRef = 1ADB45F41F8C8A7400FB2BCF /* tessdata */; };
+		6DFFA6181F95D88D00678931 /* ARCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFFA6171F95D88D00678931 /* ARCalendar.swift */; };
 		7595E20E1F7AADBD003D7F0B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7595E20D1F7AADBD003D7F0B /* Utilities.swift */; };
 		BFF13B2BAEE9EC6034F3E727 /* Pods_PFRectDetectTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD5BAFAFD1256146629951C8 /* Pods_PFRectDetectTests.framework */; };
 		E786B9441B2DE63C6C43941E /* Pods_PFRectDetect.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4416AD04B9D8C0AD46B9C84 /* Pods_PFRectDetect.framework */; };
@@ -51,6 +52,7 @@
 		1ADB45F41F8C8A7400FB2BCF /* tessdata */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tessdata; sourceTree = "<group>"; };
 		23FD963C63369D89787CC928 /* Pods-PFRectDetect.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PFRectDetect.release.xcconfig"; path = "Pods/Target Support Files/Pods-PFRectDetect/Pods-PFRectDetect.release.xcconfig"; sourceTree = "<group>"; };
 		42C8185FB9B12A1CDC902AA3 /* Pods-PFRectDetectTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PFRectDetectTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PFRectDetectTests/Pods-PFRectDetectTests.release.xcconfig"; sourceTree = "<group>"; };
+		6DFFA6171F95D88D00678931 /* ARCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARCalendar.swift; sourceTree = "<group>"; };
 		7595E20D1F7AADBD003D7F0B /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		9B7FCA3C3249A512D6582DD5 /* Pods-PFRectDetectTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PFRectDetectTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PFRectDetectTests/Pods-PFRectDetectTests.debug.xcconfig"; sourceTree = "<group>"; };
 		DD5BAFAFD1256146629951C8 /* Pods_PFRectDetectTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PFRectDetectTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -125,6 +127,7 @@
 				1ADB45041F7A1BAC00FB2BCF /* art.scnassets */,
 				1ADB45061F7A1BAC00FB2BCF /* ViewController.swift */,
 				7595E20D1F7AADBD003D7F0B /* Utilities.swift */,
+				6DFFA6171F95D88D00678931 /* ARCalendar.swift */,
 				1ADB45081F7A1BAC00FB2BCF /* Main.storyboard */,
 				1ADB450B1F7A1BAC00FB2BCF /* Assets.xcassets */,
 				1ADB450D1F7A1BAC00FB2BCF /* LaunchScreen.storyboard */,
@@ -364,6 +367,7 @@
 				1ADB45E81F8C602900FB2BCF /* OCRService.swift in Sources */,
 				7595E20E1F7AADBD003D7F0B /* Utilities.swift in Sources */,
 				1ADB45071F7A1BAC00FB2BCF /* ViewController.swift in Sources */,
+				6DFFA6181F95D88D00678931 /* ARCalendar.swift in Sources */,
 				1ADB45031F7A1BAC00FB2BCF /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

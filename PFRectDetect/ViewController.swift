@@ -215,14 +215,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 self.drawPoints(inpoints.map({$1}), onRect: rect)
                 
                 let sv = self.sceneView!
-                
-                let imagePlane = SCNPlane(width: 0.4, height: 0.5)
-                imagePlane.firstMaterial?.diffuse.contents = UIImage(named: "poster")
-                imagePlane.firstMaterial?.isDoubleSided = true
-                imagePlane.firstMaterial?.lightingModel = .constant
-                
-                let planeNode = SCNNode(geometry: imagePlane)
-                sv.scene.rootNode.addChildNode(planeNode)
+                let calendarNode = ARCalendar()
+                calendarNode.loadModal()
+                calendarNode.position = SCNVector3Make(0,0,0)
+                calendarNode.pivot = SCNMatrix4MakeRotation(.pi/2, 1, 0, 0)
+                calendarNode.scale = SCNVector3(x: 0.1, y:0.1, z:0.1)
+                sv.scene.rootNode.addChildNode(calendarNode)
                 
                 inpoints.map({ (p3d, _) in
                     let ball = SCNSphere(radius: 0.002)
@@ -248,17 +246,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 //
 //                    planeNode.rotation = SCNVector4(0, 1, 0, theta)
 //                }
+                
                 if inpoints.count > 1 {
                     let p0 = inpoints.first?.0.y
                     let xs = inpoints.map({$0.0}).map({Double($0.x)})
                     let zs = inpoints.map({$0.0}).map({Double($0.z)})
                     let lineReg = linearRegression(xs, zs)
                     let avgx = average(xs)
-                    planeNode.position = SCNVector3(x:Float(avgx), y: p0!-0.35, z: Float(lineReg(avgx)))
-                    
+                    calendarNode.position = SCNVector3(x:Float(avgx), y: p0!-0.35, z: Float(lineReg(avgx)))
+
                     let theta = atan( lineReg(1) - lineReg(0))
-                    planeNode.rotation = SCNVector4(0, 1, 0, -theta)
-                    
+                    calendarNode.rotation = SCNVector4(0, 1, 0, -theta)
+
                 }
                 
                 
