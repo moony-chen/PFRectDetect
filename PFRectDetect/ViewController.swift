@@ -247,6 +247,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 //                    planeNode.rotation = SCNVector4(0, 1, 0, theta)
 //                }
                 
+                
                 if inpoints.count > 1 {
                     let p0 = inpoints.first?.0.y
                     let xs = inpoints.map({$0.0}).map({Double($0.x)})
@@ -255,7 +256,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                     let avgx = average(xs)
                     calendarNode.position = SCNVector3(x:Float(avgx), y: p0!-0.35, z: Float(lineReg(avgx)))
 
-                    let theta = atan( lineReg(1) - lineReg(0))
+                    let theta = atan2(lineReg(1) - lineReg(0), 1)
                     calendarNode.rotation = SCNVector4(0, 1, 0, -theta)
 
                 }
